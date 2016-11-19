@@ -1,0 +1,32 @@
+eureka:
+  client:
+    leaseRenewalIntervalInSeconds: 5
+    serviceUrl:
+      defaultZone: http://localhost:8010/eureka/
+      
+server:
+  port: ${PORT:${SERVER_PORT:9010}}
+
+---
+spring:
+  profiles: docker
+
+server:
+  port: 9010
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8010/eureka/
+---
+spring:
+  profiles: pact-test
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    enabled: false      

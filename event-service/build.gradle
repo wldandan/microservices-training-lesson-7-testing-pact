@@ -1,0 +1,82 @@
+buildscript {
+
+    ext {
+        springBootVersion = '1.4.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath 'com.wiredforcode:gradle-spawn-plugin:0.6.0'
+        classpath 'au.com.dius:pact-jvm-provider-gradle_2.11:2.1.13'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'au.com.dius.pact'
+apply plugin: 'com.wiredforcode.spawn'
+
+ext {
+    pactFilePath = System.getenv("PACT_FILE") ?: '../event-composite-service/target/pacts/EventCompositeService-EventService.json'
+}
+
+jar {
+    baseName = 'event-service'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile 'org.springframework.data:spring-data-rest-hal-browser'
+    compile 'org.springframework.boot:spring-boot-starter-data-rest'
+    compile 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.cloud:spring-cloud-starter-eureka'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Brixton.SR6'
+    }
+}
+
+
+pact {
+    serviceProviders {
+        eventProvider {
+            startProviderTask = 'startProvider'
+            terminateProviderTask = 'stopProvider'
+            hasPactWith('eventConsumer') {
+                pactFile = file(pactFilePath)
+            }
+        }
+    }
+}
+
+import com.wiredforcode.gradle.spawn.*
+
+task startServer(type: SpawnProcessTask) {
+    command "docker-compose up --build"
+    ready 'Started Application'
+}
+
+task startProvider(type: Exec, dependsOn: 'startServer') {
+    commandLine "./db-seed/seed.sh"
+}
+
+task killBackgroundProcess(type: KillProcessTask)
+task stopProvider(type: Exec, dependsOn: 'killBackgroundProcess') {
+    commandLine './scripts/stop.sh'
+}

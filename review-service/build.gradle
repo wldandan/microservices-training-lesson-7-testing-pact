@@ -1,0 +1,77 @@
+buildscript {
+	ext {
+		springBootVersion = '1.4.1.RELEASE'
+	}
+	repositories {
+        mavenCentral()
+        jcenter()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath('com.github.jengelman.gradle.plugins:gradle-processes:0.3.0')
+        classpath 'au.com.dius:pact-jvm-provider-gradle_2.11:2.1.13'
+	}
+}
+
+ext {
+	pactFilePath = System.getenv("PACT_FILE") ?: '../event-composite-service/target/pacts/EventCompositeService-ReviewService.json'
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'au.com.dius.pact'
+apply plugin: 'com.github.johnrengelman.processes'
+
+jar {
+	baseName = 'review-service'
+	version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile 'org.springframework.cloud:spring-cloud-starter-eureka'
+	compile("org.springframework.boot:spring-boot-starter-hateoas")
+	compile("org.springframework.boot:spring-boot-starter-web")
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile("au.com.dius:pact-jvm-consumer-junit_2.11:2.1.13")
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Brixton.SR6"
+	}
+}
+
+pact {
+	serviceProviders {
+		reviewProvider {
+			startProviderTask = 'startProvider'
+			terminateProviderTask = 'stopProvider'
+			hasPactWith('reviewConsumer') {
+				pactFile = file(pactFilePath)
+			}
+		}
+	}
+}
+
+task startProvider(type: com.github.jengelman.gradle.plugins.processes.tasks.JavaFork) {
+	classpath = files("./build/libs/review-service-${version}.jar")
+	classpath += sourceSets.main.runtimeClasspath
+	main = 'com.microservice.training.Application'
+	systemProperty 'spring.profiles.active', 'pact-test'
+	doLast {
+		Thread.sleep(10000)
+	}
+}
+
+task stopProvider << {
+	startProvider.processHandle.abort()
+}

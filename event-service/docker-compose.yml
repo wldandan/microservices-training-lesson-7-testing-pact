@@ -1,0 +1,14 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+  event-service:
+    build: .
+    command: java -jar /app/event-service-latest.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: pact-test
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
