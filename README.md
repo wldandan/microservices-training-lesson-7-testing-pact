@@ -9,6 +9,9 @@ cd event-composite-service
 
 ```
 
+运行如上命令，将生成类似target/*****.json的PACT文件
+
+
 #### 测试EventService
 ```
 cd event-service
@@ -16,9 +19,12 @@ cd event-service
 
 ```
 
+运行如上命令，将使用EventCompositeService生成的PACT文件进行验证
+
 #### 测试ReviewService
 ```
 cd review-service
 ./gradlew pactVerify
 
 ```
+运行如上命令，将使用EventCompositeService生成的PACT文件进行验证
