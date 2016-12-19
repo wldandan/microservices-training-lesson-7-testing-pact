@@ -63,15 +63,15 @@ public class EventCompositeIntegrationTest {
     }
 
     @Rule
-    PactProviderRule eventServiceProvider =
+    public PactProviderRule eventServiceProvider =
             new PactProviderRule("EventService", "localhost", 9000, this);
 
     @Rule
-    PactProviderRule recommendationServiceProvider =
+    public PactProviderRule recommendationServiceProvider =
             new PactProviderRule("RecommendationService", "localhost", 9010, this);
 
     @Rule
-    PactProviderRule reviewServiceProvider =
+    public PactProviderRule reviewServiceProvider =
             new PactProviderRule("ReviewService", "localhost", 9020, this);
 
     @Pact(state="WhenEventDetailIsAvailable", provider = "EventService", consumer = "EventCompositeService")

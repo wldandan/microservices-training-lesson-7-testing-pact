@@ -28,3 +28,12 @@ cd review-service
 
 ```
 运行如上命令，将使用EventCompositeService生成的PACT文件进行验证
+
+#### 启动pact-broker
+
+```
+cd pact-broker && docker-compose up -d
+```
+
+open `localhost:8888`
+

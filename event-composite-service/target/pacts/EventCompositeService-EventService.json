@@ -6,8 +6,8 @@
     "name" : "EventCompositeService"
   },
   "interactions" : [ {
-    "providerState" : "events are available",
-    "description" : "request event details",
+    "providerState" : "event details is available",
+    "description" : "event detail request",
     "request" : {
       "method" : "GET",
       "path" : "/events/57c811115d6fe2b86380d549"
