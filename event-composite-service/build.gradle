@@ -7,6 +7,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'au.com.dius:pact-jvm-provider-gradle_2.11:3.0.2'
 	}
 }
 
@@ -14,6 +15,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'au.com.dius.pact'
 
 jar {
 	baseName = 'event-composite-service'
@@ -26,6 +28,12 @@ repositories {
 	mavenCentral()
 }
 
+pact {
+     publish {
+       pactDirectory = 'target/pacts'
+       pactBrokerUrl = 'http://localhost:8888/'
+     }
+}
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
